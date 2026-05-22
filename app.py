@@ -12,27 +12,29 @@ from models import db, User, Payment, UsageLog
 from auth import require_auth, require_credits
 from rate_limiter import init_rate_limiter, rate_limiter
 from stripe_handler import StripeHandler
-# Lazy import summarizer to avoid loading model on startup
+
 summarizer = None
+
+def get_summarizer():
+    global summarizer
+    if summarizer is None:
+        from summarizer import summarizer as sz
+        summarizer = sz
+    return summarizer
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    # Initialize extensions
     db.init_app(app)
     CORS(app)
     
-    # Initialize rate limiter
     init_rate_limiter(app)
-    
-    # Initialize Stripe handler
     stripe_handler = StripeHandler(app)
     
-    # Create tables
     with app.app_context():
         db.create_all()
     
-    # Routes
     @app.route('/')
     def index():
         return jsonify({
@@ -55,22 +57,19 @@ def create_app():
         if not data or not data.get('email') or not data.get('password'):
             return jsonify({'error': 'Email and password required'}), 400
         
-        # Check if user exists
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 400
         
-        # Create user
         user = User(
             email=data['email'],
             password_hash=generate_password_hash(data['password']),
-            credits=100  # Give 100 free credits on signup
+            credits=100
         )
         user.generate_api_key()
         
         db.session.add(user)
         db.session.commit()
         
-        # Generate JWT token
         token = user.generate_jwt_token(app.config['SECRET_KEY'])
         
         return jsonify({
@@ -105,7 +104,7 @@ def create_app():
     @app.route('/summarize', methods=['POST'])
     @require_auth
     @require_credits(credits_needed=1)
-    @rate_limiter.limit(max_requests=30, window=3600)  # 30 requests per hour per user
+    @rate_limiter.limit(max_requests=30, window=3600)
     def summarize_text():
         data = request.get_json()
         
@@ -116,27 +115,24 @@ def create_app():
         max_length = data.get('max_length', 130)
         min_length = data.get('min_length', 30)
         
-        # Process summarization
-        if summarizer is None:
-    from summarizer import summarizer as sz
-    summarizer = sz
-result = summarizer.summarize(
+        result = get_summarizer().summarize(
+            text=text,
+            max_length=max_length,
+            min_length=min_length
+        )
         
-        # Log the usage
         usage_log = UsageLog(
             user_id=g.current_user.id,
             endpoint='summarize',
             credits_used=1,
             status='success' if result['success'] else 'failed',
             error_message=result.get('error'),
-            tokens_processed=result.get('metadata', {}).get('input_tokens', 0),
             request_data=json.dumps({'text_length': len(text)}),
             response_data=json.dumps(result),
             processing_time=result.get('processing_time', 0)
         )
         
         if result['success']:
-            # Deduct credit
             g.current_user.credits -= 1
         
         db.session.add(usage_log)
@@ -159,8 +155,8 @@ result = summarizer.summarize(
     @require_auth
     def buy_credits():
         data = request.get_json()
-        success_url = data.get('success_url', 'http://localhost:5000/success')
-        cancel_url = data.get('cancel_url', 'http://localhost:5000/cancel')
+        success_url = data.get('success_url', 'https://ai-summarization-api.onrender.com/success')
+        cancel_url = data.get('cancel_url', 'https://ai-summarization-api.onrender.com/cancel')
         
         result = stripe_handler.create_checkout_session(
             user=g.current_user,
