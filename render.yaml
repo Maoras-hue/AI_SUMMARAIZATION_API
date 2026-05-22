@@ -1,0 +1,27 @@
+# render.yaml
+services:
+  - type: web
+    name: ai-summarization-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///data/api_credits.db
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: REDIS_URL
+        value: redis://red-xxxxx:6379
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: redis
+    name: ai-api-redis
+    ipAllowList: []
+    plan: free

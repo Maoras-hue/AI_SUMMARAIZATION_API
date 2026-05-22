@@ -1,0 +1,24 @@
+# .gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+*.db
+*.sqlite3
+instance/
+.webassets-cache
+.env.local
+.env.*.local
+dist/
+build/
+*.egg-info/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
