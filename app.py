@@ -12,7 +12,15 @@ from models import db, User, Payment, UsageLog
 from auth import require_auth, require_credits
 from rate_limiter import init_rate_limiter, rate_limiter
 from stripe_handler import StripeHandler
-from summarizer import summarizer
+# Lazy import summarizer to avoid loading model on startup
+summarizer = None
+
+def get_summarizer():
+    global summarizer
+    if summarizer is None:
+        from summarizer import summarizer as sz
+        summarizer = sz
+    return summarizer
 
 def create_app():
     app = Flask(__name__)
