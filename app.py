@@ -14,14 +14,6 @@ from rate_limiter import init_rate_limiter, rate_limiter
 from stripe_handler import StripeHandler
 # Lazy import summarizer to avoid loading model on startup
 summarizer = None
-
-def get_summarizer():
-    global summarizer
-    if summarizer is None:
-        from summarizer import summarizer as sz
-        summarizer = sz
-    return summarizer
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -125,11 +117,10 @@ def create_app():
         min_length = data.get('min_length', 30)
         
         # Process summarization
-        result = summarizer.summarize(
-            text=text,
-            max_length=max_length,
-            min_length=min_length
-        )
+        if summarizer is None:
+    from summarizer import summarizer as sz
+    summarizer = sz
+result = summarizer.summarize(
         
         # Log the usage
         usage_log = UsageLog(
