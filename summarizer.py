@@ -23,14 +23,13 @@ class TextSummarizer:
     def load_model(self):
         if self.model is None:
             print("Loading summarization model...")
-            from transformers import pipeline
-            # Use tiny model that works on free tier
-            self.model = pipeline(
-                "summarization",
-                model="google/pegasus-xsum",  # Smaller model
-                device=-1
-            )
-            print("Model loaded!")
+            try:
+                from transformers import pipeline
+                self.model = pipeline("summarization", model="facebook/bart-large-cnn", device=-1)
+                print("Model loaded!")
+            except Exception as e:
+                print(f"Model load error: {e}")
+                raise
         return self.model
     
     def summarize(self, text, max_length=130, min_length=30, do_sample=False):
