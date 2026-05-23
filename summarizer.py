@@ -23,13 +23,13 @@ class TextSummarizer:
     def load_model(self):
         if self.model is None:
             print("Loading summarization model...")
-            try:
-                from transformers import pipeline
-                self.model = pipeline("summarization", model="facebook/bart-large-cnn", device=-1)
-                print("Model loaded!")
-            except Exception as e:
-                print(f"Model load error: {e}")
-                raise
+            from transformers import pipeline
+            self.model = pipeline(
+                "summarization",
+                model="philschmid/bart-large-cnn-samsum",
+                device=-1
+            )
+            print("Model loaded!")
         return self.model
     
     def summarize(self, text, max_length=130, min_length=30, do_sample=False):
@@ -37,8 +37,8 @@ class TextSummarizer:
         try:
             model = self.load_model()
             words = text.split()
-            if len(words) > 512:
-                text = ' '.join(words[:512])
+            if len(words) > 500:
+                text = ' '.join(words[:500])
             
             summary = model(text, max_length=max_length, min_length=min_length, do_sample=do_sample)[0]['summary_text']
             
