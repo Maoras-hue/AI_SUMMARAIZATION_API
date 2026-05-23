@@ -191,7 +191,45 @@
     </div>
 
     <script>
-        let userToken = localStorage.getItem('token');
+       let userToken = localStorage.getItem('token');
+let userCredits = localStorage.getItem('credits') || 100;
+
+// Always show auth first, then verify token
+if (userToken) {
+    // Verify token is still valid
+    fetch('/credits', {
+        headers: { 'Authorization': 'Bearer ' + userToken }
+    })
+    .then(r => {
+        if (r.ok) return r.json();
+        throw new Error('Invalid token');
+    })
+    .then(data => {
+        userCredits = data.credits;
+        showApp();
+    })
+    .catch(() => {
+        localStorage.clear();
+        userToken = null;
+        showAuth();
+    });
+} else {
+    showAuth();
+}
+
+function showAuth() {
+    document.getElementById('authCard').style.display = 'block';
+    document.getElementById('summarizeCard').style.display = 'none';
+    document.getElementById('infoCard').style.display = 'none';
+}
+
+function showApp() {
+    document.getElementById('authCard').style.display = 'none';
+    document.getElementById('summarizeCard').style.display = 'block';
+    document.getElementById('infoCard').style.display = 'block';
+    document.getElementById('creditsDisplay').textContent = userCredits + ' Credits';
+    document.getElementById('creditCount').textContent = userCredits;
+}
         let userCredits = localStorage.getItem('credits') || 100;
 
         // Check if already logged in
