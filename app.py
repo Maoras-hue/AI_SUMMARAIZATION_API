@@ -3,7 +3,7 @@ import os
 import json
 import hashlib
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify, g, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 
@@ -37,6 +37,10 @@ def create_app():
     
     @app.route('/')
     def index():
+        return render_template('index.html')
+    
+    @app.route('/api')
+    def api_info():
         return jsonify({
             'service': 'AI Text Summarization API',
             'version': '1.0.0',
@@ -50,8 +54,11 @@ def create_app():
             }
         })
     
-    @app.route('/register', methods=['POST'])
+    @app.route('/register', methods=['GET', 'POST'])
     def register():
+        if request.method == 'GET':
+            return render_template('register.html')
+        
         data = request.get_json()
         
         if not data or not data.get('email') or not data.get('password'):
@@ -78,8 +85,11 @@ def create_app():
             'token': token
         }), 201
     
-    @app.route('/login', methods=['POST'])
+    @app.route('/login', methods=['GET', 'POST'])
     def login():
+        if request.method == 'GET':
+            return render_template('login.html')
+        
         data = request.get_json()
         
         if not data or not data.get('email') or not data.get('password'):
@@ -155,8 +165,8 @@ def create_app():
     @require_auth
     def buy_credits():
         data = request.get_json()
-        success_url = data.get('success_url', 'https://ai-summarization-api.onrender.com/success')
-        cancel_url = data.get('cancel_url', 'https://ai-summarization-api.onrender.com/cancel')
+        success_url = data.get('success_url', request.host_url + 'success')
+        cancel_url = data.get('cancel_url', request.host_url + 'cancel')
         
         result = stripe_handler.create_checkout_session(
             user=g.current_user,
@@ -219,11 +229,11 @@ def create_app():
     
     @app.route('/success')
     def success():
-        return jsonify({'message': 'Payment successful! Credits added to your account.'})
+        return render_template('success.html')
     
     @app.route('/cancel')
     def cancel():
-        return jsonify({'message': 'Payment cancelled.'})
+        return render_template('cancel.html')
     
     return app
 

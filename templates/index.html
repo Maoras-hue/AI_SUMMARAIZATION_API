@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Summarization API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: white; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        h1 { text-align: center; color: #e94560; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 40px; }
+        .card { background: #16213e; border-radius: 10px; padding: 30px; margin-bottom: 20px; }
+        .card h2 { color: #0f3460; margin-bottom: 20px; background: #e94560; padding: 10px; border-radius: 5px; }
+        input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #333; border-radius: 5px; background: #0f3460; color: white; font-size: 16px; }
+        textarea { min-height: 150px; resize: vertical; }
+        button { background: #e94560; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #c73e54; }
+        .result { background: #0f3460; padding: 15px; border-radius: 5px; margin-top: 10px; display: none; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #16213e; border: none; color: white; cursor: pointer; border-radius: 5px; }
+        .tab.active { background: #e94560; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .credits-badge { background: #e94560; padding: 5px 15px; border-radius: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Text Summarizer</h1>
+        <p class="subtitle">Powered by Transformers + Stripe</p>
+        
+        <div class="card">
+            <h2>Summarize Text</h2>
+            <textarea id="textInput" placeholder="Paste your text here to summarize..."></textarea>
+            <input type="text" id="apiKeyInput" placeholder="Your API Key or JWT Token">
+            <button onclick="summarize()">Summarize</button>
+            <div class="result" id="summaryResult"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Buy Credits - $10 for 1000 Credits</h2>
+            <button onclick="buyCredits()">Purchase Credits</button>
+        </div>
+        
+        <div class="card">
+            <h2>API Endpoints</h2>
+            <pre style="background:#0f3460;padding:15px;border-radius:5px;overflow-x:auto;">
+POST /register - Create account
+POST /login - Get JWT token
+POST /summarize - Summarize text (requires auth)
+GET /credits - Check balance
+POST /buy-credits - Purchase credits
+            </pre>
+        </div>
+    </div>
+    
+    <script>
+        function summarize() {
+            const text = document.getElementById('textInput').value;
+            const token = document.getElementById('apiKeyInput').value;
+            const resultDiv = document.getElementById('summaryResult');
+            
+            if (!text) { alert('Please enter text'); return; }
+            if (!token) { alert('Please enter API key or token'); return; }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Summarizing...';
+            
+            fetch('/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `<strong>Summary:</strong><br>${data.summary}<br><br><small>Credits remaining: ${data.credits_remaining}</small>`;
+                } else {
+                    resultDiv.innerHTML = `<span style="color:#e94560">Error: ${data.error}</span>`;
+                }
+            })
+            .catch(err => {
+                resultDiv.innerHTML = `<span style="color:#e94560">Error: ${err.message}</span>`;
+            });
+        }
+        
+        function buyCredits() {
+            const token = document.getElementById('apiKeyInput').value;
+            if (!token) { alert('Please enter your token first'); return; }
+            
+            fetch('/buy-credits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.checkout_url) {
+                    window.open(data.checkout_url, '_blank');
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            });
+        }
+    </script>
+</body>
+</html>
