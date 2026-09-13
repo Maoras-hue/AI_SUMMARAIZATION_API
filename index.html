@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Zaid</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 20%, #0a1526 0%, #060d18 60%, #030509 100%);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #c8dcf5;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  /* floating dots in the background */
+  .dots {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .dots span {
+    position: absolute;
+    bottom: -60px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #64aaf0;
+    opacity: 0;
+    animation: rise 14s linear infinite;
+    box-shadow: 0 0 8px #64aaf0;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0);      opacity: 0; }
+    15%  { opacity: 0.9; }
+    85%  { opacity: 0.5; }
+    100% { transform: translateY(-110vh); opacity: 0; }
+  }
+  .dots span:nth-child(1)  { left: 6%;  animation-duration: 13s; animation-delay: 0s; }
+  .dots span:nth-child(2)  { left: 15%; animation-duration: 16s; animation-delay: 1.2s; }
+  .dots span:nth-child(3)  { left: 24%; animation-duration: 14s; animation-delay: 3s; }
+  .dots span:nth-child(4)  { left: 33%; animation-duration: 18s; animation-delay: 0.6s; }
+  .dots span:nth-child(5)  { left: 42%; animation-duration: 15s; animation-delay: 2.4s; }
+  .dots span:nth-child(6)  { left: 51%; animation-duration: 17s; animation-delay: 4.2s; }
+  .dots span:nth-child(7)  { left: 60%; animation-duration: 13s; animation-delay: 1.8s; }
+  .dots span:nth-child(8)  { left: 69%; animation-duration: 16s; animation-delay: 5s; }
+  .dots span:nth-child(9)  { left: 78%; animation-duration: 14s; animation-delay: 2.7s; }
+  .dots span:nth-child(10) { left: 87%; animation-duration: 15s; animation-delay: 3.6s; }
+  .dots span:nth-child(11) { left: 94%; animation-duration: 17s; animation-delay: 0.3s; }
+
+  .card {
+    position: relative;
+    z-index: 1;
+    background: rgba(12, 20, 34, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(100, 170, 240, 0.35);
+    border-radius: 20px;
+    padding: 56px 40px;
+    max-width: 540px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(60, 130, 210, 0.18),
+                0 0 0 1px rgba(100, 170, 240, 0.08) inset;
+    animation: fadeIn 1.4s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .badge {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3c82d2 0%, #64aaf0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, serif;
+    font-size: 46px;
+    font-weight: bold;
+    color: #fff;
+    box-shadow: 0 0 30px rgba(100, 170, 240, 0.5);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 30px rgba(100, 170, 240, 0.5); }
+    50%      { transform: scale(1.05); box-shadow: 0 0 45px rgba(100, 170, 240, 0.75); }
+  }
+
+  h1 {
+    font-size: 34px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    color: #c8dcf5;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #8ab4e8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0.85;
+  }
+
+  .message {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #d8e6f8;
+    margin-bottom: 36px;
+    font-style: italic;
+  }
+
+  a.download {
+    display: inline-block;
+    padding: 16px 44px;
+    font-family: Georgia, serif;
+    font-size: 17px;
+    color: #fff;
+    background: linear-gradient(135deg, #3c82d2 0%, #64aaf0 100%);
+    border: none;
+    border-radius: 40px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(60, 130, 210, 0.5);
+    letter-spacing: 0.5px;
+  }
+  a.download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(100, 170, 240, 0.7);
+  }
+  a.download:active {
+    transform: translateY(0);
+  }
+  a.download::before {
+    content: "▸  ";
+    margin-right: 4px;
+  }
+
+  .note {
+    margin-top: 28px;
+    font-size: 13px;
+    color: #7a9bc4;
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+
+  .note code {
+    background: rgba(100, 170, 240, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+    color: #a8cff5;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 40px 24px; }
+    h1    { font-size: 26px; }
+    .message { font-size: 15px; }
+    a.download { padding: 14px 32px; font-size: 15px; }
+    .badge { width: 72px; height: 72px; font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dots">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+</div>
+
+<div class="card">
+  <div class="badge">Z</div>
+  <h1>For Zaid</h1>
+  <div class="subtitle">a page for my brother</div>
+
+  <p class="message">
+    I've been learning how to code.<br>
+    Not just simple stuff — real projects.<br>
+    <br>
+    And I built this one for you.
+  </p>
+
+  <a class="download" href="zaid.exe" download>Download</a>
+
+  <p class="note">
+    When Windows says <code>Windows protected your PC</code>, click
+    <code>More info</code> → <code>Run anyway</code>. It's just because the file
+    isn't signed — nothing to worry about.
+  </p>
+</div>
+
+</body>
+</html>
